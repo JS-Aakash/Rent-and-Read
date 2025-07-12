@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <nav class="navbar">
+        <div class="logo" style="color: #ccc;">📚 RENT and READ</div>
+        <ul class="nav-links">
+            <li><a href="index.html"> Login</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="help.html" class="active">Help</a></li>
+            <li><a href="#">Creator</a></li>
+        </ul>
+    </nav>
+    <title>RENT and READ | Help</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 100px 0px 20px 0px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: url('Images/Untitled\ design.png') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+        }
+        .navbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: centre;
+            align-items: center;
+            background: rgba(30, 30, 60, 0.98);
+            padding: 0.7rem 1rem;
+            height: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+            padding-bottom: 2px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: #ffe082;
+            border-bottom: 2px solid #ffe082;
+        }
+
+        .help-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #2b5876;
+        }
+
+        .faq-section {
+            margin-top: 30px;
+        }
+
+        .faq-item {
+            border-bottom: 1px solid #ccc;
+            padding: 15px 0;
+        }
+
+        .faq-question {
+            font-weight: bold;
+            cursor: pointer;
+            color: #2b5876;
+        }
+
+        .faq-answer {
+            display: none;
+            margin-top: 10px;
+            color: #333;
+        }
+
+        .faq-question:hover {
+            text-decoration: underline;
+        }
+
+        .contact-suggestion {
+            margin-top: 40px;
+            background: #eef3f8;
+            padding: 15px;
+            border-left: 4px solid #2b5876;
+            border-radius: 4px;
+        }
+
+        .social-links {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-links a {
+            margin: 0 10px;
+            color: #2b5876;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="help-container">
+        <h2>Help & FAQs</h2>
+        <p style="text-align: center;">Here are some common questions and answers to help you out.</p>
+
+        <div class="faq-section">
+            <div class="faq-item">
+                <div class="faq-question">📘 How do I rent a book?</div>
+                <div class="faq-answer">To rent a book, browse our collection, click on the desired title, and hit the
+                    "Rent Now" button. You'll need to be logged in.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">📦 How long can I keep the book?</div>
+                <div class="faq-answer">Books are rented on a monthly basis. You can renew your rental from your
+                    dashboard before the due date.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">💳 What payment methods are accepted?</div>
+                <div class="faq-answer">We accept UPI, Google Pay, and debit/credit cards through Razorpay integration.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">🔁 Can I return a book early?</div>
+                <div class="faq-answer">Yes! Early returns are accepted anytime. Just visit your profile and select the
+                    book you want to return.</div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question">🛠️ What if a book is damaged?</div>
+                <div class="faq-answer">If a book arrives damaged, contact us immediately through the contact page with
+                    a photo, and we'll assist you with a replacement or refund.</div>
+            </div>
+        </div>
+
+        <div class="contact-suggestion">
+            <strong>Still need help?</strong><br>
+            Feel free to <a href="contact.html">contact us</a> for further assistance. Our support team typically
+            responds within 24 hours.
+        </div>
+
+        <div class="social-links">
+            <h3 style="color: #2b5876;">Connect With Us</h3>
+            <p>
+                <a href="https://facebook.com" target="_blank">Facebook</a> |
+                <a href="https://twitter.com" target="_blank">Twitter</a> |
+                <a href="https://instagram.com" target="_blank">Instagram</a> |
+                <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+            </p>
+        </div>
+    </div>
+    <script>
+        document.querySelectorAll('.faq-question').forEach(q => {
+            q.addEventListener('click', () => {
+                const answer = q.nextElementSibling;
+                const isVisible = answer.style.display === 'block';
+                document.querySelectorAll('.faq-answer').forEach(a => a.style.display = 'none');
+                answer.style.display = isVisible ? 'none' : 'block';
+            });
+        });
+    </script>
+
+</body>
+
+</html>

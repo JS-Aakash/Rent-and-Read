@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rent and Read | Login</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="logo">📚 RENT and READ </div>
+        <ul class="nav-links">
+            <li><a href="#" class="active"> Login</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li><a href="help.html">Help</a></li>
+            <li><a href="#">Creator</a></li>
+        </ul>
+    </nav>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Welcome to RENT and READ</h1>
+            <p>
+                Discover, rent, and enjoy your favorite books from the comfort of your home.
+                <br>
+                <span class="highlight">Books for Every Reader, Rentals for Every Budget.</span>
+            </p>
+        </div>
+    </section>
+    <main class="main-container">
+        <div class="form-container" id="form-container">
+            <div class="form-toggle">
+                <button id="login-toggle" class="toggle-btn active">Login</button>
+                <button id="signup-toggle" class="toggle-btn">Sign Up</button>
+            </div>
+            <form id="login-form" class="auth-form">
+                <h2>Login to Your Account</h2>
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit" class="form-btn">Login</button>
+                <div class="form-message" id="login-message"></div>
+            </form>
+            <form id="signup-form" class="auth-form hidden">
+                <h2>Create an Account</h2>
+                <input type="email" id="signup-email" placeholder="Email" required>
+                <input type="password" id="signup-password" placeholder="Password" required>
+                <input type="password" id="signup-confirm" placeholder="Confirm Password" required>
+                <button type="submit" class="form-btn">Sign Up</button>
+                <div class="form-message" id="signup-message"></div>
+            </form>
+        </div>
+    </main>
+
+    <div class="image-row">
+        <div class="image-item">
+            <img src="Images/file_0000000049b861fd80c291908e870a37.png" alt="Book 1">
+            <div class="caption">Step 1 : Sign Up / Log In<br><br>
+                Create an account or log in using your email to access the features in the website and explore
+                the available books.</div>
+        </div>
+        <div class="image-item">
+            <img src="Images/great-books-for-anytime-2000-4ff4221eb1e54b659689fef7d5e265d5.jpg" alt="Book 2">
+            <div class="caption">Step 2 : Rent or List a Book<br><br>
+                To Rent : Browse books, select one, and confirm. <br>
+                To List : Add book details, set a rent price and publish.</div>
+        </div>
+        <div class="image-item">
+            <img src="Images/delivery-service-customer-door_107791-11385.jpg" alt="Book 3">
+            <div class="caption">Step 3 : Door Delivered <br><br>
+                A delivery person picks up the book from the lender and
+                delivers it directly to the renter’s address.</div>
+        </div>
+        <div class="image-item">
+            <img src="Images/64020f259813da1c9949b99d_return shipping labels - 2.jpg" alt="Book 4">
+            <div class="caption">Step 4 : Return After Rental <br><br>
+                At the end of the rental period, the delivery person picks up the book from the renter and returns it to
+                the owner.</div>
+        </div>
+    </div>
+    <section class="why-choose-us">
+        <div class="feature-card">
+            <i class="fas fa-book-open"></i>
+            <h3 style="color: rgb(0, 0, 0);"> Vast Selection</h3>
+            <p style="color: rgb(0, 0, 0);">Access a wide range of books and purchase in low price</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-users"></i>
+            <h3 style="color: rgb(0, 0, 0);">Community Driven</h3>
+            <p style="color: rgb(0, 0, 0);">Join a network of book lovers sharing their collections.</p>
+        </div>
+        <div class="feature-card">
+            <i class="fas fa-shipping-fast"></i>
+            <h3 style="color: rgb(0, 0, 0);">Doorstep Delivery</h3>
+            <p style="color: rgb(0, 0, 0);">Get books delivered right to your home, hassle-free.</p>
+        </div>
+    </section>
+
+    <section class="testimonials">
+        <h2>What Our Readers Say</h2>
+        <div class="testimonial-grid">
+            <div class="testimonial-card">
+                <img src="Images/Prof pic.jpg" alt="Aakash JS">
+                <p> “I wanted to read one book. I ended up renting five. This site is more addictive than coffee!”</p>
+                <strong style="color: rgb(0, 0, 0);">- Aakash JS</strong>
+            </div>
+            <div class="testimonial-card">
+                <img src="Images/1000054980.jpg" alt="Gowsika A">
+                <p>“I used to buy every book I read. Now I rent, read, return and repeat”</p>
+                <strong style="color: rgb(0, 0, 0);">- Gowsika A</strong>
+            </div>
+            <div class="testimonial-card">
+                <img src="Images/8703abf0-2180-11ef-9628-ff2abcc9602e.jpg" alt="Mr Beast">
+                <p>“Clean UI, responsive support, and a solid book collection. What more could a reader ask for?”</p>
+                <strong style="color: rgb(0, 0, 0);">- Mr Beast</strong>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-container">
+            <div class="footer-section">
+                <h3>Contact Us</h3>
+                <p>Email: <a href="mailto:rentandread22@gmail.com">rentandread22@gmail.com</a></p>
+                <p>Phone: <a href="tel:+918667832633">+91 8667832633</a></p>
+            </div>
+
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Terms & Conditions</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Return Policy</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <p>&copy; 2025 Rent and Read. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="app.js"></script>
+
+</body>
+
+</html>

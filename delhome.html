@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Home - Delivery Manager with OTP Email</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3/dist/email.min.js"></script>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        input,
+        button {
+            font-family: inherit;
+            font-size: 16px;
+        }
+
+        .title-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: #043d57;
+            color: white;
+            padding: 16px 12px;
+            font-weight: 700;
+            font-size: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            z-index: 1000;
+        }
+
+        .login-body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: linear-gradient(to top right, #06beb6, #48b1bf);
+        }
+
+        .login-container {
+            background: #fff;
+            padding: 30px 25px;
+            border-radius: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 90%;
+            max-width: 320px;
+        }
+
+        .login-container h1 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 12px;
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 12px;
+            background-color: #06beb6;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .login-container button:hover {
+            background-color: #019a90;
+        }
+
+        .error-msg {
+            color: red;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+
+        .home-body {
+            padding-top: 72px;
+            padding-bottom: 60px;
+        }
+
+        .home-content {
+            padding: 20px;
+        }
+
+        .dashboard-cards {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .card {
+            background: white;
+            padding: 16px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            font-size: 18px;
+            text-align: center;
+        }
+
+        .otp-section {
+            margin-top: 8px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .otp-input {
+            width: 120px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .card button {
+            background-color: #0b32b3;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .card button:hover {
+            background-color: #019a90;
+        }
+
+        .otp-section {
+            margin-top: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: nowrap;
+        }
+
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            text-align: left;
+        }
+
+        .card .otp-btn {
+            background-color: #1a3f83;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .card .otp-btn:hover {
+            background-color: #019a90;
+        }
+        
+
+        @media (max-width: 600px) {
+            .card {
+                font-size: 16px;
+                padding: 14px;
+            }
+
+            .otp-input {
+                width: 70px;
+            }
+
+            .title-bar {
+                font-size: 18px;
+                padding: 12px 8px;
+            }
+
+            .login-container {
+                padding: 24px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body class="home-body">
+
+    <header class="title-bar">
+        <h1>📚 RENT and READ Delivery Manager</h1>
+    </header>
+
+    <div id="custom-alert"
+        style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:9999; justify-content:center; align-items:center;">
+        <div
+            style="background:#fff; color:#222; padding:32px 24px; border-radius:8px; min-width:260px; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,0.2);">
+            <div id="custom-alert-message" style="margin-bottom:24px; font-size:22px;"></div>
+            <button id="custom-alert-ok"
+                style="padding:8px 24px; font-size:1.1em; border:none; border-radius:5px; background:#1976d2; color:#fff; cursor:pointer;">OK</button>
+        </div>
+    </div>
+    <main class="home-content">
+        <br><br>
+        <h2>Pending Deliveries</h2>
+        <br>
+        <div id="orderList" class="dashboard-cards"></div>
+
+        <h2 style="margin-top: 30px;">Completed Deliveries</h2>
+        <br>
+        <div id="completedList" class="dashboard-cards"></div>
+    </main>
+
+    <script>
+        emailjs.init("0PDAoH5kr5_skZrCT");
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqNxMwJV3lz4QcFhPzCtijsjLFv0WU4mY",
+            authDomain: "rent-and-read-us.firebaseapp.com",
+            projectId: "rent-and-read-us",
+            storageBucket: "rent-and-read-us.appspot.com",
+            messagingSenderId: "76702135993",
+            appId: "1:76702135993:web:65d928d5ad1defe3844d68"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+
+        const db = firebase.firestore();
+
+        const orderList = document.getElementById("orderList");
+        const completedList = document.getElementById("completedList");
+        const otpMap = {};
+        function showCustomAlert(message, callback) {
+            const alertBox = document.getElementById('custom-alert');
+            const alertMessage = document.getElementById('custom-alert-message');
+            const alertOk = document.getElementById('custom-alert-ok');
+
+            alertMessage.textContent = message;
+            alertBox.style.display = 'flex';
+            function onOkClick() {
+                alertBox.style.display = 'none';
+                alertOk.removeEventListener('click', onOkClick);
+                if (callback) callback();
+            }
+
+            alertOk.addEventListener('click', onOkClick);
+        }
+
+        function generateOTP() {
+            return Math.floor(1000 + Math.random() * 9000).toString();
+        }
+
+        function createCard(data, id, isCompleted = false) {
+            const card = document.createElement("div");
+            card.className = "card";
+            card.id = `card-${id}`;
+
+            let content = `
+        <div class="card-content">
+            <strong>${data.name}</strong>
+            📞 ${data.number}<br>
+            📍 ${data.address}, ${data.postal}<br>
+            ${data.copies ? `📚 Copies: ${data.copies}<br>` : ""}
+            ${data.totalCost ? `💰 Total: ₹${data.totalCost}<br>` : ""}
+            ✉️ User Email: ${data.userEmail}
+        </div>
+    `;
+
+            if (!isCompleted) {
+                content += `
+            <div id="otp-block-${id}">
+                <button id="sendOtpBtn-${id}" class="otp-btn">Send OTP</button>
+            </div>
+            <div class="otp-section" id="otp-section-${id}" style="display: none;">
+                <input type="text" id="otp-input-${id}" class="otp-input" placeholder="Enter OTP" maxlength="4" />
+                <button id="verifyOtpBtn-${id}" class="otp-btn">Verify</button>
+            </div>
+
+        <p id="status-${id}" class="status-message"></p>
+    `;
+            }
+            else {
+                content += `<p style="color: green; font-weight: 600;">✅ Delivered</p>`;
+            }
+
+            card.innerHTML = content;
+            return card;
+        }
+
+
+        function loadPendingDeliveries() {
+            orderList.innerHTML = "<div class='card'>Loading...</div>";
+            db.collection("order").get().then(snapshot => {
+                orderList.innerHTML = "";
+                if (snapshot.empty) {
+                    orderList.innerHTML = "<div class='card'>No pending deliveries.</div>";
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+                    otpMap[id] = generateOTP();
+
+                    const card = createCard(data, id, false);
+                    orderList.appendChild(card);
+
+                    document.getElementById(`sendOtpBtn-${id}`).addEventListener('click', () => {
+                        sendOTPEmail(id, data.userEmail);
+                    });
+
+                    document.getElementById(`verifyOtpBtn-${id}`).addEventListener('click', () => {
+                        verifyOTP(id);
+                    });
+                });
+            }).catch(err => {
+                console.error("Error loading pending deliveries:", err);
+                orderList.innerHTML = "<div class='card'>Failed to load pending deliveries.</div>";
+            });
+        }
+
+        function loadCompletedDeliveries() {
+            completedList.innerHTML = "<div class='card'>Loading...</div>";
+            db.collection("completed").orderBy("deliveredAt", "desc").get().then(snapshot => {
+                completedList.innerHTML = "";
+                if (snapshot.empty) {
+                    completedList.innerHTML = "<div class='card'>No deliveries completed.</div>";
+                    return;
+                }
+
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const id = doc.id;
+
+                    const card = createCard(data, id, true);
+                    completedList.appendChild(card);
+                });
+            }).catch(err => {
+                console.error("Error loading completed deliveries:", err);
+                completedList.innerHTML = "<div class='card'>Failed to load completed deliveries.</div>";
+            });
+        }
+
+        function sendOTPEmail(docId, email) {
+            const otp = otpMap[docId];
+            if (!email) {
+                alert("User email not available!");
+                return;
+            }
+            document.getElementById(`sendOtpBtn-${docId}`).style.display = "none";
+            document.getElementById(`otp-section-${docId}`).style.display = "flex";
+
+            const templateParams = {
+                email: email,
+                passcode: otp
+            };
+
+            emailjs.send('rentandread', 'template_g3t1fqa', templateParams)
+                .then(() => {
+                    alert(`✅ OTP sent to ${email}`);
+                })
+                .catch(err => {
+                    alert(`❌ Failed to send email: ${err}`);
+                });
+        }
+
+        async function verifyOTP(docId) {
+            const input = document.getElementById(`otp-input-${docId}`).value.trim();
+            const statusMsg = document.getElementById(`status-${docId}`);
+            const correctOTP = otpMap[docId];
+
+            if (input !== correctOTP) {
+                statusMsg.textContent = "❌ Incorrect OTP.";
+                statusMsg.style.color = "red";
+                return;
+            }
+
+            try {
+                const docRef = db.collection("order").doc(docId);
+                const docSnap = await docRef.get();
+
+                if (!docSnap.exists) {
+                    statusMsg.textContent = "❌ Order not found.";
+                    statusMsg.style.color = "red";
+                    return;
+                }
+
+                const data = docSnap.data();
+                data.deliveredAt = firebase.firestore.Timestamp.now();
+
+                await db.collection("completed").add(data);
+                await docRef.delete();
+
+                statusMsg.textContent = "✅ Delivery finished.";
+                statusMsg.style.color = "green";
+                const cardElement = document.getElementById(`card-${docId}`);
+                if (cardElement) cardElement.remove();
+                const completedCard = createCard(data, docId, true);
+                completedList.prepend(completedCard);
+                showCustomAlert("Delivery completed", () => {
+                });
+
+            } catch (err) {
+                statusMsg.textContent = "❌ Error completing delivery.";
+                statusMsg.style.color = "red";
+                console.error(err);
+            }
+        }
+        loadPendingDeliveries();
+        loadCompletedDeliveries();
+    </script>
+</body>
+
+</html>

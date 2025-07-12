@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rent and Read | List a Book</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="list.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 100px 0px 20px 0px;
+            font-family: 'Montserrat', Arial, sans-serif;
+            background: url('Images/Untitled\ design.png') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+        }
+
+        .navbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: centre;
+            align-items: center;
+            background: rgba(30, 30, 60, 0.98);
+            padding: 0.7rem 1rem;
+            height: auto;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+            width: 100%;
+            position: fixed;
+            top: 0;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 1.1rem;
+            transition: color 0.2s;
+            padding-bottom: 2px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-links a.active,
+        .nav-links a:hover {
+            color: #ffe082;
+            border-bottom: 2px solid #ffe082;
+        }
+
+        h2 {
+            text-align: center;
+            color: #222;
+        }
+
+        .contact-container {
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        input,
+        textarea {
+            width: 98%;
+            padding: 10px;
+            margin-top: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        label {
+            font-weight: bold;
+            color: #222;
+        }
+
+        button {
+            background: #2b5876;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1e3c56;
+        }
+
+        #map {
+            height: 400px;
+            width: 100%;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .status {
+            margin-top: 10px;
+            color: green;
+        }
+
+        .social-links {
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .social-links a {
+            margin: 0 10px;
+            color: #2b5876;
+            text-decoration: none;
+        }
+
+        .social-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="custom-alert"
+        style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:9999; justify-content:center; align-items:center;">
+        <div
+            style="background:#fff; color:#222; padding:32px 24px; border-radius:8px; min-width:260px; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,0.2);">
+            <div id="custom-alert-message" style="margin-bottom:24px; font-size: 22 px;"></div>
+            <button id="custom-alert-ok"
+                style="padding:8px 24px; font-size:1.1em; border:none; border-radius:5px; background:#1976d2; color:#fff; cursor:pointer;">OK</button>
+        </div>
+    </div>
+    <nav class="navbar" id="navbar">
+        <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <div class="logo"> 📚 RENT and READ</div>
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="borrowed.html">Borrowed Books</a></li>
+            <li><a href="listed.html">Listed Books</a></li>
+            <li><a href="rented.html">Rented Books</a></li>
+            <li><a href="list.html">List a Book</a></li>
+            <li><a href="cart.html">My Cart</a></li>
+
+        </ul>
+        <div class="notification-wrapper">
+            <div class="notification-bell" id="notificationBell" aria-label="Notifications" tabindex="0">
+                🔔
+                <span class="badge" id="notificationCount" style="display:none;">0</span>
+            </div>
+            <div class="notification-dropdown" id="notificationDropdown" role="region" aria-live="polite"
+                aria-label="Notifications list">
+                <div class="notification-header" style="display:none;">Notifications</div>
+                <div id="notificationList">
+                    <div class="notification-empty">No notifications</div>
+                </div>
+            </div>
+        </div>
+        <form class="search-container">
+            <input type="text" id="searchBox" placeholder="Search..." class="search-input">
+            <button id="searchButton" type="button" class="search-btn">&#128270;</button>
+        </form>
+    </nav>
+    <aside class="side-menu" id="side-menu">
+        <button class="close-btn" id="close-btn" aria-label="Close menu">&times;</button>
+        <ul>
+            <li><a href="login.html">Admin | Dashboard</a></li>
+            <li><a href="request.html">Request a Book</a></li>
+            <li><a href="rr.html">RR Points</a></li>
+            <li><a href="chatbot.html">AI Chatbot</a></li>
+            <li><a href="contactlogged.html">Contact</a></li>
+            <li><a href="helplogged.html">Help</a></li>
+            <li><a href="index.html">Logout</a></li>
+        </ul>
+    </aside>
+    <div id="custom-alert"
+        style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.4); z-index:9999; justify-content:center; align-items:center;">
+        <div
+            style="background:#fff; color:#222; padding:32px 24px; border-radius:8px; min-width:260px; text-align:center; box-shadow:0 4px 24px rgba(0,0,0,0.2);">
+            <div id="custom-alert-message" style="margin-bottom:24px; font-size: 22 px;"></div>
+            <button id="custom-alert-ok"
+                style="padding:8px 24px; font-size:1.1em; border:none; border-radius:5px; background:#1976d2; color:#fff; cursor:pointer;">OK</button>
+        </div>
+    </div>
+    <div class="contact-container">
+        <h2>Contact Us</h2>
+        <p style="color: #222;">We’d love to hear from you. Please fill out the form below and we’ll get back to you
+            shortly.</p>
+
+        <form id="contactForm">
+            <label for="name">Name:</label>
+            <input type="text" id="name" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+
+            <label for="message">Message:</label>
+            <textarea id="message" rows="4" required></textarea>
+
+            <button type="submit">Send Message</button>
+            <div class="status" id="formStatus"></div>
+        </form>
+
+        <div id="map"></div>
+        <div class="social-links">
+            <h3 style="color: #2b5876;">Connect With Us</h3>
+            <p>
+                <a href="https://facebook.com" target="_blank">Facebook</a> |
+                <a href="https://twitter.com" target="_blank">Twitter</a> |
+                <a href="https://instagram.com" target="_blank">Instagram</a> |
+                <a href="https://linkedin.com" target="_blank">LinkedIn</a>
+            </p>
+        </div>
+    </div>
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqNxMwJV3lz4QcFhPzCtijsjLFv0WU4mY",
+            authDomain: "rent-and-read-us.firebaseapp.com",
+            projectId: "rent-and-read-us",
+            storageBucket: "rent-and-read-us.appspot.com",
+            messagingSenderId: "76702135993",
+            appId: "1:76702135993:web:65d928d5ad1defe3844d68"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+    </script>
+    <script>
+        const contactForm = document.getElementById("contactForm");
+        const formStatus = document.getElementById("formStatus");
+        function showCustomAlert(msg) {
+            document.getElementById('custom-alert-message').textContent = msg;
+            document.getElementById('custom-alert').style.display = 'flex';
+        }
+        document.getElementById('custom-alert-ok').onclick = function () {
+            document.getElementById('custom-alert').style.display = 'none';
+            window.location.href = 'book-detail.html?id=' + bookId;
+        };
+        contactForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const name = document.getElementById("name").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const message = document.getElementById("message").value.trim();
+
+            try {
+                await db.collection("contacts").add({
+                    name,
+                    email,
+                    message,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                showCustomAlert("Message sent successfully!");
+                contactForm.reset();
+            } catch (error) {
+                showCustomAlert("Failed to send message.");
+                console.error(error);
+            }
+        });
+    </script>
+    <script>
+        const myLocation = [11.2748, 77.6076];
+        const map = L.map('map').setView(myLocation, 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker(myLocation).addTo(map)
+            .bindPopup("We are here!")
+            .openPopup();
+    </script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script src="app.js"></script>
+    <script src="recode.js"></script>
+</body>
+
+</html>

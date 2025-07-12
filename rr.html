@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Rent and Read | List a Book</title>
+    <link rel="icon"
+        href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:700,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="list.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .gamification-container {
+            max-width: 600px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .heading {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .description {
+            font-size: 1rem;
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 30px;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+            color: #444;
+        }
+
+        .progress {
+            height: 30px;
+            margin-bottom: 20px;
+        }
+
+        .reward-msg {
+            font-size: 1rem;
+            font-weight: bold;
+            color: #2e6b3e;
+        }
+
+        .progress {
+            display: flex;
+            height: 1.5rem;
+            overflow: hidden;
+            font-size: 0.75rem;
+            background-color: #e9ecef;
+            border-radius: 0.375rem;
+        }
+
+        .progress-bar {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            color: #fff;
+            text-align: center;
+            white-space: nowrap;
+            background-color: #28a745;
+            transition: width 0.6s ease;
+        }
+
+        .progress-bar-striped {
+            background-image: linear-gradient(45deg, rgba(255, 255, 255, .15) 25%, transparent 25%,
+                    transparent 50%, rgba(255, 255, 255, .15) 50%,
+                    rgba(255, 255, 255, .15) 75%, transparent 75%, transparent);
+            background-size: 1rem 1rem;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <button class="hamburger" id="hamburger" aria-label="Open menu" aria-expanded="false">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <div class="logo"> 📚 RENT and READ</div>
+        <ul class="nav-links">
+            <li><a href="home.html">Home</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="borrowed.html">Borrowed Books</a></li>
+            <li><a href="listed.html">Listed Books</a></li>
+            <li><a href="rented.html">Rented Books</a></li>
+            <li><a href="list.html">List a Book</a></li>
+            <li><a href="cart.html">My Cart</a></li>
+
+        </ul>
+        <div class="notification-wrapper">
+            <div class="notification-bell" id="notificationBell" aria-label="Notifications" tabindex="0">
+                🔔
+                <span class="badge" id="notificationCount" style="display:none;">0</span>
+            </div>
+            <div class="notification-dropdown" id="notificationDropdown" role="region" aria-live="polite"
+                aria-label="Notifications list">
+                <div class="notification-header" style="display:none;">Notifications</div>
+                <div id="notificationList">
+                    <div class="notification-empty">No notifications</div>
+                </div>
+            </div>
+        </div>
+        <form class="search-container">
+            <input type="text" id="searchBox" placeholder="Search..." class="search-input">
+            <button id="searchButton" type="button" class="search-btn">&#128270;</button>
+        </form>
+    </nav>
+
+    <aside class="side-menu" id="side-menu">
+        <button class="close-btn" id="close-btn" aria-label="Close menu">&times;</button>
+        <ul>
+            <li><a href="login.html">Admin | Dashboard</a></li>
+            <li><a href="request.html">Request a Book</a></li>
+            <li><a href="rr.html">RR Points</a></li>
+            <li><a href="chatbot.html">AI Chatbot</a></li>
+            <li><a href="contactlogged.html">Contact</a></li>
+            <li><a href="helplogged.html">Help</a></li>
+            <li><a href="index.html">Logout</a></li>
+        </ul>
+    </aside>
+    <div class="gamification-container">
+        <h1 class="heading">🎯 Book Rental Progress</h1>
+        <p class="description">Borrow and rent books to earn rewards! Once the progress bar is full, you can rent a book
+            absolutely free! 📚</p>
+
+        <div class="progress-info">
+            <p><strong>Books Borrowed:</strong> <span id="borrowedCount">0</span></p>
+            <p><strong>Books Rented:</strong> <span id="rentedCount">0</span></p>
+        </div>
+
+        <div class="progress rounded-pill">
+            <div class="progress-bar progress-bar-striped bg-success" id="progressBar" style="width: 0%">0%</div>
+        </div>
+
+        <p class="reward-msg" id="rewardMsg">Keep going! You're earning your free rental. 🔄</p>
+    </div>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqNxMwJV3lz4QcFhPzCtijsjLFv0WU4mY",
+            authDomain: "rent-and-read-us.firebaseapp.com",
+            projectId: "rent-and-read-us",
+            storageBucket: "rent-and-read-us.appspot.com",
+            messagingSenderId: "76702135993",
+            appId: "1:76702135993:web:65d928d5ad1defe3844d68"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                const userId = user.uid;
+
+                db.collection("profile").where("userId", "==", userId).get().then(querySnapshot => {
+                    if (!querySnapshot.empty) {
+                        const doc = querySnapshot.docs[0];
+                        const data = doc.data();
+
+                        const borrowed = typeof data.booksBorrowed === "number" ? data.booksBorrowed : 0;
+                        const rented = typeof data.booksRented === "number" ? data.booksRented : 0;
+                        const total = borrowed + rented;
+                        const goal = 15;
+
+                        const percentage = Math.min(Math.round((total / goal) * 100), 100);
+
+                        document.getElementById("borrowedCount").textContent = borrowed;
+                        document.getElementById("rentedCount").textContent = rented;
+
+                        const progressBar = document.getElementById("progressBar");
+                        progressBar.style.width = `${percentage}%`;
+                        progressBar.textContent = `${percentage}%`;
+
+                        const rewardMsg = document.getElementById("rewardMsg");
+
+                        if (percentage >= 100) {
+                            rewardMsg.textContent = "🎉 Congratulations! You’ve earned a free rental!";
+                            progressBar.classList.remove("bg-success");
+                            progressBar.classList.add("bg-warning");
+                        } else if (percentage >= 70) {
+                            rewardMsg.textContent = "Almost there! Just a few more to go. 💪";
+                        } else if (percentage >= 40) {
+                            rewardMsg.textContent = "You're halfway there! 📈";
+                        } else {
+                            rewardMsg.textContent = "Keep going! You're earning your free rental. 🔄";
+                        }
+                    } else {
+                        console.warn("No profile document found with matching userId field.");
+                    }
+                }).catch(error => {
+                    console.error("Error getting profile document:", error);
+                });
+            } else {
+                window.location.href = "index.html";
+            }
+        });
+
+    </script>
+    <script src="recode.js"></script>
+</body>
+
+</html>

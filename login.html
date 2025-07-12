@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Delivery Manager</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: url('Images/Untitled\ design.png') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .login-container {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+            animation: popIn 0.5s ease-out;
+            color: #fff;
+        }
+
+        .login-container h1 {
+            font-size: 22px;
+            margin-bottom: 24px;
+            color: #ffffff;
+        }
+
+        .login-container input {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 12px 0;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
+            transition: background 0.3s ease;
+        }
+
+        .login-container input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .login-container input:focus {
+            outline: none;
+            background: rgba(0, 0, 0, 0.35);
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3);
+        }
+
+        .login-container button {
+            width: 100%;
+            padding: 14px;
+            background: #fff;
+            color: #000000;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: large;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 8px;
+        }
+
+        .login-container button:hover {
+            background-color: #b2e4c5;
+        }
+
+        .error-msg {
+            color: #a80101;
+            font-size: 18px;
+            margin-top: 12px;
+            min-height: 18px;
+        }
+
+        @keyframes popIn {
+            0% {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+            }
+
+            .login-container h1 {
+                font-size: 18px;
+            }
+
+            .login-container input,
+            .login-container button {
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="login-container">
+        <h1>Admin Dashboard | Delivery Manager</h1>
+        <form id="loginForm">
+            <input type="text" id="username" placeholder="Username" required>
+            <input type="password" id="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+            <p id="errorMsg" class="error-msg"></p>
+        </form>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

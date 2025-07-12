@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Export Data - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #eef1f7;
+            color: #333;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e2a38, #2e3c4e);
+            color: white;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            transition: background 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #3e4c5e;
+        }
+
+        .main {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .main h1 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .export-options button {
+            margin: 1rem 1rem 0 0;
+            padding: 0.7rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        .export-options button:hover {
+            background-color: #388E3C;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <a href="admin.html">📊 Dashboard</a>
+            <a href="books-listing.html">📚 Book Listings</a>
+            <a href="deliveries.html">🚚 Deliveries</a>
+            <a href="users.html">👤 Users</a>
+            <a href="export.html" class="active">📤 Export</a>
+            <a href="home.html">🌐 Back to Site</a>
+        </div>
+
+        <div class="main">
+            <h1>Export Firestore Data</h1>
+            <div class="export-options">
+                <button onclick="exportUsers()">Export Users</button>
+                <button onclick="exportBooks()">Export Books</button>
+                <button onclick="exportOrders()">Export Orders</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqNxMwJV3lz4QcFhPzCtijsjLFv0WU4mY",
+            authDomain: "rent-and-read-us.firebaseapp.com",
+            projectId: "rent-and-read-us",
+            storageBucket: "rent-and-read-us.appspot.com",
+            messagingSenderId: "76702135993",
+            appId: "1:76702135993:web:65d928d5ad1defe3844d68"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function exportUsers() {
+            db.collection("users").get().then(snapshot => {
+                const data = snapshot.docs.map(doc => {
+                    const d = doc.data();
+                    return {
+                        Email: d.email,
+                        Name: d.name || "",
+                        Phone: d.number || "",
+                        Address: d.address || "",
+                        State: d.state || "",
+                        PostalCode: d.postal || ""
+                    };
+                });
+                downloadCSV(data, "users_export.csv");
+            });
+        }
+
+        function exportBooks() {
+            db.collection("books").get().then(snapshot => {
+                const data = snapshot.docs.map(doc => {
+                    const d = doc.data();
+                    return {
+                        Title: d.title || "",
+                        Author: d.author || "",
+                        Genre: d.genre || "",
+                        Price: d.price || "",
+                        Owner: d.owner || ""
+                    };
+                });
+                downloadCSV(data, "books_export.csv");
+            });
+        }
+
+        function exportOrders() {
+            db.collection("order").get().then(snapshot => {
+                const data = snapshot.docs.map(doc => {
+                    const d = doc.data();
+                    return {
+                        Customer: d.name || "",
+                        Email: d.email || "",
+                        Book: d.bookName || "",
+                        Copies: d.copies || "",
+                        Cost: d.totalCost || "",
+                        Status: d.status || ""
+                    };
+                });
+                downloadCSV(data, "orders_export.csv");
+            });
+        }
+
+        function downloadCSV(data, filename) {
+            const csvRows = [];
+            const headers = Object.keys(data[0]);
+            csvRows.push(headers.join(","));
+            for (const row of data) {
+                const values = headers.map(h => '"' + (row[h] || "") + '"');
+                csvRows.push(values.join(","));
+            }
+            const blob = new Blob([csvRows.join("\n")], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', filename);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    </script>
+</body>
+
+</html>

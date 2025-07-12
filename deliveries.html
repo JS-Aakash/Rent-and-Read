@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deliveries Report - Rent and Read</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #eef1f7;
+            color: #333;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e2a38, #2e3c4e);
+            color: white;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            transition: background 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #3e4c5e;
+        }
+
+        .main {
+            padding: 2rem;
+            overflow-y: auto;
+            background-color: #f9fafc;
+            border-radius: 20px 0 0 20px;
+        }
+
+        .main h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .filter-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-section label {
+            font-weight: 500;
+            margin-right: 0.5rem;
+        }
+
+        .filter-section select {
+            padding: 0.6rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .delivery-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .delivery-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s ease-in-out;
+        }
+
+        .delivery-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .info {
+            flex-grow: 1;
+        }
+
+        .info h3 {
+            margin-bottom: 0.3rem;
+        }
+
+        .status {
+            font-weight: bold;
+            color: #4e73df;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <a href="admin.html">📊 Dashboard</a>
+            <a href="books-listing.html">📚 Book Listings</a>
+            <a href="#" class = "active">🚚 Deliveries</a>
+            <a href="users.html">👤 Users</a>
+            <a href="export.html">📤 Export</a>
+            <a href="home.html">🌐 Back to Site</a>
+        </div>
+        <div class="main">
+            <h1>Completed Deliveries</h1>
+            <div class="filter-section">
+                <label for="completedFilter">Filter by: </label>
+                <select id="completedFilter">
+                    <option value="all">All</option>
+                    <option value="1">Last 1 Day</option>
+                    <option value="3">Last 3 Days</option>
+                    <option value="7">Last 7 Days</option>
+                </select>
+            </div>
+            <div class="delivery-list" id="completedList"></div>
+
+            <h1>Pending Deliveries</h1>
+            <div class="filter-section">
+                <label for="pendingFilter">Filter by: </label>
+                <select id="pendingFilter">
+                    <option value="all">All</option>
+                    <option value="1">Last 1 Day</option>
+                    <option value="3">Last 3 Days</option>
+                    <option value="7">Last 7 Days</option>
+                </select>
+            </div>
+            <div class="delivery-list" id="pendingList"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqNxMwJV3lz4QcFhPzCtijsjLFv0WU4mY",
+            authDomain: "rent-and-read-us.firebaseapp.com",
+            projectId: "rent-and-read-us",
+            storageBucket: "rent-and-read-us.appspot.com",
+            messagingSenderId: "76702135993",
+            appId: "1:76702135993:web:65d928d5ad1defe3844d68"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function fetchDeliveries(collection, timeField, days, containerId) {
+            const now = new Date();
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+
+            let query = db.collection(collection);
+            if (days !== null) {
+                const startDate = new Date(now.getTime() - (days * 24 * 60 * 60 * 1000));
+                query = query.where(timeField, ">=", startDate);
+            }
+
+            const snapshot = await query.get();
+            snapshot.forEach(doc => {
+                const d = doc.data();
+                const card = document.createElement('div');
+                card.className = 'delivery-card';
+                card.innerHTML = `
+          <div class="info">
+            <h3>${d.name || 'Book Info'}</h3>
+            <p>To: ${d.name} - ${d.address} ${d.state}</p>
+            <p>Email: ${d.userEmail}, Phone: ${d.number}</p>
+            <p>Copies: ${d.copies}, Duration: ${d.duration} months</p>
+            <p>Total: ₹${d.totalCost}</p>
+            <p>Date: ${d[timeField]?.toDate().toLocaleString()}</p>
+          </div>
+          <div class="status">${collection === 'completed' ? 'Completed' : 'Pending'}</div>
+        `;
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById('completedFilter').addEventListener('change', e => {
+            const val = e.target.value;
+            fetchDeliveries('completed', 'deliveredAt', val === 'all' ? null : parseInt(val), 'completedList');
+        });
+
+        document.getElementById('pendingFilter').addEventListener('change', e => {
+            const val = e.target.value;
+            fetchDeliveries('order', 'dateAdded', val === 'all' ? null : parseInt(val), 'pendingList');
+        });
+
+        fetchDeliveries('completed', 'deliveredAt', null, 'completedList');
+        fetchDeliveries('order', 'dateAdded', null, 'pendingList');
+    </script>
+</body>
+
+</html>

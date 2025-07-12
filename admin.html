@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Admin Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #eef1f7;
+            color: #333;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e2a38, #2e3c4e);
+            color: white;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            transition: background 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #3e4c5e;
+        }
+
+        .main {
+            padding: 2rem;
+            background: #f9fafc;
+            overflow-y: auto;
+            border-radius: 20px 0 0 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+        }
+
+        .toolbar {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 1.5rem;
+        }
+
+        .toolbar select {
+            padding: 0.6rem 1rem;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            font-size: 1rem;
+        }
+
+        .cards {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .card {
+            background: #fff;
+            flex: 1;
+            min-width: 200px;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 12px 25px rgba(0, 0, 0, 0.05);
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            color: #888;
+        }
+
+        .card p {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #222;
+        }
+
+        canvas {
+            width: 100% !important;
+            height: 400px !important;
+            background: #fff;
+            padding: 1rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.07);
+            margin-bottom: 2rem;
+        }
+
+        .pie-row {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .pie-container {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .pie-container canvas {
+            height: auto !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <a href="#" class="active">📊 Dashboard</a>
+            <a href="books-listing.html">📚 Book Listings</a>
+            <a href="deliveries.html">🚚 Deliveries</a>
+            <a href="users.html">👤 Users</a>
+            <a href="export.html">📤 Export</a>
+            <a href="home.html">🌐 Back to Site</a>
+        </div>
+        <div class="main">
+            <h1>Dashboard & Reports</h1>
+            <div class="toolbar">
+                <select id="dateFilter">
+                    <option value="all" selected>All time</option>
+                    <option value="1">Last 1 Day</option>
+                    <option value="3">Last 3 Days</option>
+                    <option value="7">Last 7 Days</option>
+                </select>
+            </div>
+            <div class="cards">
+                <div class="card">
+                    <h3>Books Rented</h3>
+                    <p id="booksRented">0</p>
+                </div>
+                <div class="card">
+                    <h3>Revenue (₹)</h3>
+                    <p id="revenue">₹0</p>
+                </div>
+                <div class="card">
+                    <h3>Pending Deliveries</h3>
+                    <p id="pendingDeliveries">0</p>
+                </div>
+                <div class="card">
+                    <h3>New Users</h3>
+                    <p id="newUsers">0</p>
+                </div>
+                <div class="card">
+                    <h3>Total Listings</h3>
+                    <p id="totalListings">0</p>
+                </div>
+
+            </div>
+            <h3>Top Rented Books</h3>
+            <canvas id="topBooksChart"></canvas>
+            <h3>Users activity this week</h3>
+            <canvas id="userActivityChart"></canvas>
+            <div class="pie-row">
+                <div class="pie-container">
+                    <h3>Top Genres</h3><canvas id="genreChart"></canvas>
+                </div>
+                <div class="pie-container">
+                    <h3>Books Sold</h3><canvas id="salesChart"></canvas>
+                </div>
+                <div class="pie-container">
+                    <h3>Sales Per Day</h3><canvas id="dailySalesChart"></canvas>
+                </div>
+            </div>
+            <h3>Delivery analysis</h3>
+            <canvas id="deliveryStatusChart"></canvas>
+        </div>
+    </div>
+
+    <script>
+        firebase.initializeApp({
+            apiKey: "AIzaSyBqNxMwJV3lz4QcFhPzCtijsjLFv0WU4mY",
+            authDomain: "rent-and-read-us.firebaseapp.com",
+            projectId: "rent-and-read-us",
+            storageBucket: "rent-and-read-us.appspot.com",
+            messagingSenderId: "76702135993",
+            appId: "1:76702135993:web:65d928d5ad1defe3844d68"
+        });
+
+        const db = firebase.firestore();
+        const dateFilter = document.getElementById("dateFilter");
+        let charts = {};
+
+        function genColors(n) {
+            const palette = ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#858796', '#FF6B6B', '#4D96FF'];
+            return Array.from({ length: n }, (_, i) => palette[i % palette.length]);
+        }
+
+        async function loadSalesPerDayChart() {
+            const orderSnap = await db.collection("completed").get();
+            const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const data = Array(7).fill(0);
+            orderSnap.docs.forEach(doc => {
+                const day = doc.data().dateAdded?.toDate().getDay();
+                if (day !== undefined) data[day]++;
+            });
+            charts.dailySalesConfig.data.labels = labels;
+            charts.dailySalesConfig.data.datasets[0].data = data;
+            charts.dailySalesConfig.data.datasets[0].backgroundColor = genColors(7);
+            charts.dailySalesChart.update();
+        }
+
+        async function loadData() {
+            const filter = dateFilter.value;
+            let completedRef = db.collection("completed");
+            let orderRef = db.collection("order");
+            let pendingRef = db.collection("pending");
+            if (filter !== "all") {
+                const cutoff = firebase.firestore.Timestamp.fromDate(new Date(Date.now() - filter * 86400000));
+                completedRef = completedRef.where("deliveredAt", ">=", cutoff);
+                orderRef = orderRef.where("dateAdded", ">=", cutoff);
+            }
+
+            const [compSnap, orderSnap, usersSnap, booksSnap] = await Promise.all([
+                completedRef.get(), orderRef.get(), db.collection("users").get(), db.collection("books").get()
+            ]);
+
+            document.getElementById("booksRented").textContent = compSnap.size;
+            const revenue = compSnap.docs.reduce((sum, doc) => sum + (doc.data().totalCost || 0), 0);
+            document.getElementById("revenue").textContent = `₹${revenue}`;
+            document.getElementById("pendingDeliveries").textContent = orderSnap.size;
+            document.getElementById("newUsers").textContent = usersSnap.size;
+            document.getElementById("totalListings").textContent = booksSnap.size;
+
+            const books = booksSnap.docs.map(d => d.data());
+            books.sort((a, b) => (b.sold || 0) - (a.sold || 0));
+            const top = books.slice(0, 8);
+            charts.topBooksConfig.data.labels = top.map(b => b.title);
+            charts.topBooksConfig.data.datasets[0].data = top.map(b => b.sold || 0);
+            charts.topBooksConfig.data.datasets[0].backgroundColor = genColors(top.length);
+            charts.topBooksChart.update();
+
+            const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            const completedCounts = Array(7).fill(0);
+            compSnap.docs.forEach(doc => {
+                const day = doc.data().deliveredAt?.toDate().getDay();
+                if (day !== undefined) completedCounts[day]++;
+            });
+            charts.userActivityConfig.data.labels = dayLabels;
+            charts.userActivityConfig.data.datasets[0].data = completedCounts;
+            charts.userActivityChart.update();
+
+
+            const genreCount = {};
+            books.forEach(b => (b.genre || []).forEach(g => genreCount[g] = (genreCount[g] || 0) + 1));
+            const genLabels = Object.keys(genreCount);
+            charts.genreConfig.data.labels = genLabels;
+            charts.genreConfig.data.datasets[0].data = genLabels.map(g => genreCount[g]);
+            charts.genreConfig.data.datasets[0].backgroundColor = genColors(genLabels.length);
+            charts.genreChart.update();
+
+            charts.salesConfig.data.labels = top.map(b => b.title);
+            charts.salesConfig.data.datasets[0].data = top.map(b => b.sold || 0);
+            charts.salesConfig.data.datasets[0].backgroundColor = genColors(top.length);
+            charts.salesChart.update();
+
+            charts.statusConfig.data.labels = ['Pending', 'Out for Delivery', 'Completed'];
+            charts.statusConfig.data.datasets[0].data = [0, orderSnap.size, compSnap.size];
+            charts.statusConfig.data.datasets[0].backgroundColor = genColors(3);
+            charts.deliveryStatusChart.update();
+        }
+
+        function initCharts() {
+            charts.topBooksConfig = {
+                type: 'bar',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+            };
+            charts.userActivityConfig = {
+                type: 'line',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: 'rgba(28,200,138,0.2)', borderColor: '#1cc88a' }] },
+                options: { responsive: true }
+            };
+            charts.genreConfig = {
+                type: 'doughnut',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+                options: { responsive: true }
+            };
+            charts.salesConfig = {
+                type: 'pie',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+                options: { responsive: true }
+            };
+            charts.dailySalesConfig = {
+                type: 'pie',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+                options: { responsive: true }
+            };
+            charts.statusConfig = {
+                type: 'bar',
+                data: { labels: [], datasets: [{ data: [], backgroundColor: [] }] },
+                options: { responsive: true, scales: { y: { beginAtZero: true } } }
+            };
+
+            charts.topBooksChart = new Chart(document.getElementById('topBooksChart'), charts.topBooksConfig);
+            charts.userActivityChart = new Chart(document.getElementById('userActivityChart'), charts.userActivityConfig);
+            charts.genreChart = new Chart(document.getElementById('genreChart'), charts.genreConfig);
+            charts.salesChart = new Chart(document.getElementById('salesChart'), charts.salesConfig);
+            charts.dailySalesChart = new Chart(document.getElementById('dailySalesChart'), charts.dailySalesConfig);
+            charts.deliveryStatusChart = new Chart(document.getElementById('deliveryStatusChart'), charts.statusConfig);
+
+            dateFilter.addEventListener('change', () => {
+                loadData();
+            });
+
+            loadData();
+            loadSalesPerDayChart();
+        }
+
+        window.onload = initCharts;
+    </script>
+</body>
+
+</html>

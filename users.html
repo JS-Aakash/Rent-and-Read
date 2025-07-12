@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Users - Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet" />
+    <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.3.1/firebase-firestore-compat.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: #eef1f7;
+            color: #333;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #1e2a38, #2e3c4e);
+            color: white;
+            padding: 2rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .sidebar h2 {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            padding: 0.9rem 1.2rem;
+            border-radius: 12px;
+            transition: background 0.3s;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar a:hover,
+        .sidebar a.active {
+            background-color: #3e4c5e;
+        }
+
+        .main {
+            padding: 2rem;
+            overflow-y: auto;
+            background-color: #f9fafc;
+            border-radius: 20px 0 0 20px;
+        }
+
+        .main h1 {
+            font-size: 2.2rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 2fr));
+            gap: 2rem;
+        }
+
+        .user-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            transition: transform 0.2s;
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .user-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: #333;
+        }
+
+        .user-card p {
+            font-size: 0.95rem;
+            margin: 0.3rem 0;
+            color: #555;
+        }
+
+        .delete-btn {
+            margin-top: 1rem;
+            background: #e74c3c;
+            color: white;
+            padding: 0.6rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard">
+        <div class="sidebar">
+            <h2>Admin Panel</h2>
+            <a href="admin.html">📊 Dashboard</a>
+            <a href="books-listing.html">📚 Book Listings</a>
+            <a href="deliveries.html">🚚 Deliveries</a>
+            <a href="users.html" class="active">👤 Users</a>
+            <a href="export.html">📤 Export</a>
+            <a href="home.html">🌐 Back to Site</a>
+        </div>
+
+        <div class="main">
+            <h1>Registered Users</h1>
+            <div class="user-grid" id="userGrid"></div>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBqNxMwJV3lz4QcFhPzCtijsjLFv0WU4mY",
+            authDomain: "rent-and-read-us.firebaseapp.com",
+            projectId: "rent-and-read-us",
+            storageBucket: "rent-and-read-us.appspot.com",
+            messagingSenderId: "76702135993",
+            appId: "1:76702135993:web:65d928d5ad1defe3844d68"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        var i = 1;
+        const userGrid = document.getElementById("userGrid");
+        function createUserCard(docId, data) {
+            const card = document.createElement('div');
+            card.className = 'user-card';
+            const createdDate = data.createdAt?.toDate().toLocaleString() || "N/A";
+            card.innerHTML = `
+        <h2>User : ${i}</h2>
+        <p><strong>Email:</strong> ${data.email}</p>
+        <p><strong>Date Created:</strong> ${createdDate}</p>
+        <button class="delete-btn" onclick="deleteUser('${docId}')">Delete Account</button>
+      `;
+            i++;
+            userGrid.appendChild(card);
+        }
+
+        function loadUsers() {
+            db.collection("users").get().then((snapshot) => {
+                snapshot.forEach((doc) => {
+                    createUserCard(doc.id, doc.data());
+                });
+            });
+        }
+
+        function deleteUser(id) {
+            if (confirm("Are you sure you want to delete this user account?")) {
+                db.collection("users").doc(id).delete().then(() => {
+                    alert("User account deleted.");
+                    location.reload();
+                }).catch(error => {
+                    alert("Error deleting user: " + error);
+                });
+            }
+        }
+
+        loadUsers();
+    </script>
+</body>
+
+</html>
