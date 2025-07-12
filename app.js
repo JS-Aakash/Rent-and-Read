@@ -1665,5 +1665,7 @@ document.addEventListener("DOMContentLoaded", () => {
         borrowedfn();
     } else if (path.includes("rented.html")) {
         rentedfn();
+    } else {
+    loginfn();
     }
 });
