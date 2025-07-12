@@ -1640,7 +1640,7 @@ function bookdetailfn() {
 
 document.addEventListener("DOMContentLoaded", () => {
     const path = window.location.pathname;
-    if (path.endsWith("/") || path.includes("index.html")) {
+    if (path === "/" || path === "/Rent-and-Read/" || path.endsWith("index.html")) {
         loginfn();
     } else if (path.includes("home.html")) {
         homefn();
